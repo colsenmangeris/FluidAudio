@@ -142,11 +142,14 @@ public actor AsrManager {
     ///   - vocabulary: Custom vocabulary context with terms to detect
     ///   - ctcModels: Pre-loaded CTC models for keyword spotting
     ///   - config: Optional rescorer configuration (default: vocabulary-size-aware config)
+    ///   - ctcModelDirectory: Directory containing the supplied models' tokenizer assets.
+    ///     Omit to retain the variant's default cache directory.
     /// - Throws: Error if rescorer initialization fails
     public func configureVocabularyBoosting(
         vocabulary: CustomVocabularyContext,
         ctcModels: CtcModels,
-        config: VocabularyRescorer.Config? = nil
+        config: VocabularyRescorer.Config? = nil,
+        ctcModelDirectory: URL? = nil
     ) async throws {
         self.customVocabulary = vocabulary
 
@@ -158,7 +161,7 @@ public actor AsrManager {
         self.vocabSizeConfig = vocabConfig
         let effectiveConfig = config ?? .default
 
-        let ctcModelDir = CtcModels.defaultCacheDirectory(for: ctcModels.variant)
+        let ctcModelDir = ctcModelDirectory ?? CtcModels.defaultCacheDirectory(for: ctcModels.variant)
         self.vocabularyRescorer = try await VocabularyRescorer.create(
             spotter: ctcSpotter!,
             vocabulary: vocabulary,
